@@ -32,7 +32,7 @@ The tool only reads from AWS. It never creates, changes or deletes anything.
 
 | Tool | Version | Notes |
 |---|---|---|
-| [Node.js](https://nodejs.org/) | **20.19 or later** | Older versions fail to start. Check with `node --version`. |
+| [Node.js](https://nodejs.org/) | **22.12 or later** | Older versions fail to start. Check with `node --version`. |
 | npm | comes with Node | |
 | [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) | any v2 | Only needed if you sign in with AWS SSO / IAM Identity Center. |
 | `make` | optional | Shortcut commands. Every `make` command below has an `npm` equivalent. |
@@ -152,7 +152,7 @@ npm run start:dist -- --profile my-profile
 
 ### How long does it take?
 
-Expect several minutes for a large account. The tool deliberately limits how fast it calls AWS so it doesn't hit API rate limits, and CloudTrail lookups run one at a time. Progress is written to the log file in `logs/`, not to the console.
+Expect several minutes for a large account. The tool deliberately limits how fast it calls AWS so it doesn't hit API rate limits, and CloudTrail lookups run one at a time. Progress is written to the log file in `logs/`, not to the console. When the run ends, the console prints one result line: `Processing complete`, `Processing finished with warnings` or `Processing failed`, with the reason. A failed run exits with code 1.
 
 ---
 
@@ -275,10 +275,10 @@ Set breakpoints in any `.ts` file under `src/`, open the **Run and Debug** panel
 | `Token is expired. To refresh this SSO session run 'aws sso login'...` | Run `aws sso login --profile <name>` and try again. |
 | `Could not resolve credentials using profile: [name] in configuration/credentials file(s)` | The profile name is misspelt, or isn't in `~/.aws/config`. List profiles with `aws configure list-profiles`. |
 | `Could not find Chrome` when creating the PDF | Run `npx puppeteer browsers install chrome`. (Newer npm versions can block Puppeteer's automatic download during install.) |
-| `npm warn EBADENGINE` during install, or `ERR_REQUIRE_ESM` on start | Node is too old. Upgrade to 20.19 or later. |
+| `npm warn EBADENGINE` during install, or `ERR_REQUIRE_ESM` on start | Node is too old. Upgrade to 22.12 or later. |
 | `npm ci` fails saying a lock file is needed | Make sure `package-lock.json` exists (it's committed to the repo). Fall back to `npm install` if needed. |
 | `ThrottlingException: Rate exceeded` in the log | Lower the limits in `AwsService.ts` (`maxConcurrent`, or increase `minTime`). |
-| The console shows almost nothing | Expected — progress goes to `logs/app-<timestamp>.log`. |
+| The console shows almost nothing | Expected — progress goes to `logs/app-<timestamp>.log`. The last console line says whether the run succeeded. |
 | No report files were created | Check the log. Usually there were no supported resources in that region, or credentials failed. Try `--region`. |
 | `make: command not found` (Windows) | Use the `npm` commands instead, or install make (for example `winget install GnuWin32.Make` or `choco install make`). |
 
