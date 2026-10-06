@@ -1,0 +1,18 @@
+export const TYPES = {
+  IAwsService: Symbol.for("IAwsService"),
+  ILogger : Symbol.for("ILogger"),
+  CloudFormationClient: Symbol.for("CloudFormationClient"),
+  GenerateReport: Symbol.for("GenerateReport"),
+  CloudWatchClient: Symbol.for("CloudWatchClient"),
+  CloudTrailClient: Symbol.for("CloudTrailClient"),
+  LambdaClient: Symbol.for("LambdaClient"),
+  RDSClient: Symbol.for("RDSClient"),
+  EC2Client: Symbol.for("EC2Client"),
+  S3Client: Symbol.for("S3Client"),
+  Container: Symbol.for("Container"),
+  STSClient: Symbol.for("STSClient"),
+  SQSClient: Symbol.for("SQSClient"),
+  GenerateResourceReportHandler: Symbol.for("GenerateResourceReportHandler"),
+  Mediator: Symbol.for("Mediator"),
+  FileConversionHelper: Symbol.for("FileConversionHelper"),
+};

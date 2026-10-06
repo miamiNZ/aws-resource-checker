@@ -1,0 +1,5 @@
+npm install puppeteer
+npm install bottleneck
+npm install --save-dev @types/bottleneck
+npx ts-node src/application/app.ts
+tree /F /A | Select-String -NotMatch "node_modules\\|node_modules/" | Out-File structure.txt                                                                                            

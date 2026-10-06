@@ -1,0 +1,47 @@
+{
+  "name": "aws-resource-checker",
+  "version": "1.0.0",
+  "description": "Scans an AWS account's CloudFormation stacks and reports resource usage, runtimes and configuration as JSON, Markdown and PDF.",
+  "main": "src/application/app.ts",
+  "scripts": {
+    "start": "ts-node src/application/app.ts",
+    "build": "tsc",
+    "start:dist": "node dist/application/app.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.922.0",
+    "@aws-sdk/client-cloudtrail": "^3.922.0",
+    "@aws-sdk/client-cloudwatch": "^3.922.0",
+    "@aws-sdk/client-ec2": "^3.923.0",
+    "@aws-sdk/client-lambda": "^3.922.0",
+    "@aws-sdk/client-rds": "^3.922.0",
+    "@aws-sdk/client-s3": "^3.922.0",
+    "@aws-sdk/client-sqs": "^3.928.0",
+    "@aws-sdk/client-sts": "^3.922.0",
+    "@aws-sdk/credential-providers": "^3.929.0",
+    "bottleneck": "^2.19.5",
+    "esbuild": "^0.14.14",
+    "inversify": "^7.10.4",
+    "marked": "^16.4.1",
+    "p-limit": "^7.2.0",
+    "puppeteer": "^24.28.0",
+    "reflect-metadata": "^0.2.2",
+    "yargs": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "@types/puppeteer": "^5.4.7",
+    "@types/yargs": "^17.0.35",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  }
+}

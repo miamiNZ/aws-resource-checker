@@ -1,0 +1,69 @@
+.
+|   .gitignore
+|   Makefile
+|   package-lock.json
+|   package.json
+|   README.md
+|   scratch.txt
+|   structure.txt
+|   tsconfig.json
+|
++---.vscode
+|       launch.json
+|       settings.json
+|
++---logs
++---reports
+|       AwsResourceReport<timestamp>.json/md/pdf
+|
+\---src
+    +---application
+    |   |   app.ts
+    |   |
+    |   +---reports
+    |   |       GenerateResourceReportHandler .ts
+    |   |       GenerateResourceReportRequest.ts
+    |   |       GenerateResourceReportResponse .ts
+    |   |
+    |   \---utils
+    |           FileConversionHelper.ts
+    |           generateMarkdownReport.ts
+    |           md.ts
+    |
+    +---domain
+    |   +---constants
+    |   |       accountNames.ts
+    |   |       awsResourceTypes.ts
+    |   |
+    |   +---entities
+    |   |       ResourceReport.ts
+    |   |
+    |   +---interfaces
+    |   |       IAwsService.ts
+    |   |       IHandler.ts
+    |   |       ILogger.ts
+    |   |       IMediator.ts
+    |   |       IRequest.ts
+    |   |
+    |   +---models
+    |   |       ResourceInfo.ts
+    |   |       RuntimeInfo.ts
+    |   |
+    |   +---requests
+    |   \---responses
+    \---infrastructure
+        |   Mediator.ts
+        |
+        +---di
+        |       container.ts
+        |       handlerMapper.ts
+        |       types.ts
+        |
+        +---services
+        |       AwsService.ts
+        |       ConsoleLogger.ts
+        |       FileLogger.ts
+        |
+        \---utils
+                FileHelper.ts
+

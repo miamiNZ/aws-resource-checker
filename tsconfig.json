@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2022",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "reports", "dist", "*.js", "*.mls"]
+  
+}
