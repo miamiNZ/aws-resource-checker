@@ -31,10 +31,10 @@ export function generateMarkdownReport(resources: ResourceInfo[]): string {
         r.resourceType,
         r.stackName,
         r.lastUsed ?? "N/A",
-        r.usedInLast30Days ? "✅" : "❌",
+        yesNo(r.usedInLast30Days),
         ((r.runtimeInfo?.runtimeLanguage ?? "N/A") + ' - ' + (r.runtimeInfo?.runtimeVersion ?? "N/A")),
         r.runtimeInfo?.encryption ?? "N/A",
-        r.runtimeInfo?.deprecated ? "⚠️" : "✅"
+        yesNo(r.runtimeInfo?.deprecated)
     ].join(" | "));
 
     return `| ${headers.join(" | ")} |\n| ${separator} |\n${rows.map(row => `| ${row} |`).join("\n")}`;
@@ -67,13 +67,13 @@ export function generateMarkdownReportStackGrouped(report: GenerateResourceRepor
       // Table rows
       for (const r of resources) {
         const lastUsed = formatDate(r.lastUsed ?? null) ?? "N/A";
-        const usedIcon = r.usedInLast30Days ? "✅" : "❌";
+        const used = yesNo(r.usedInLast30Days);
         const runtime = r.runtimeInfo?.runtimeLanguage ?? "N/A";
         const version = r.runtimeInfo?.runtimeVersion ?? "N/A";
         const encryption = r.runtimeInfo?.encryption ?? "N/A";
-        const deprecatedIcon = r.runtimeInfo?.deprecated ? "⚠️" : "✅";
+        const deprecated = yesNo(r.runtimeInfo?.deprecated);
         lines.push(
-          `| ${r.resourceName} | ${r.resourceType} | ${lastUsed} | ${usedIcon} | ${runtime} | ${version} | ${encryption} | ${deprecatedIcon} |`
+          `| ${r.resourceName} | ${r.resourceType} | ${lastUsed} | ${used} | ${runtime} | ${version} | ${encryption} | ${deprecated} |`
         );
       }
       lines.push(""); // blank line after table
@@ -144,35 +144,35 @@ export function generateMarkdownReportGrouped(report: GenerateResourceReportResp
         lines.push("|" + headers.map(() => "---").join("|") + "|");
         for (const r of typeResources) {
           const lastUsed = formatDate(r.lastUsed ?? null) ?? "N/A";
-          const usedInLast30DaysIcon = r.usedInLast30Days ? "✅" : "❌";
-          const deprecatedIcon = r.runtimeInfo?.deprecated ? "⚠️" : "✅";
-          const publicAccessBlockedIcon = r.runtimeInfo?.publicAccessBlocked ? "✅" : "⚠️";
+          const usedInLast30Days = yesNo(r.usedInLast30Days);
+          const deprecated = yesNo(r.runtimeInfo?.deprecated);
+          const publicAccessBlocked = yesNo(r.runtimeInfo?.publicAccessBlocked);
           const runtime = `${r.runtimeInfo?.runtimeLanguage ?? "N/A"} - ${r.runtimeInfo?.runtimeVersion ?? ""}`;
           const enc = r.runtimeInfo?.encryption ?? "N/A"
-          const versioningEnabledIcon = r.runtimeInfo?.versioningEnabled ? "✅":"❌";
-          const sqsDLQIcon = r.runtimeInfo?.sqsHasDLQ ? "✅" : "⚠️";
-          const errorIcon = r.runtimeInfo?.error ? "❌" : "✅";
+          const versioningEnabled = yesNo(r.runtimeInfo?.versioningEnabled);
+          const sqsHasDLQ = yesNo(r.runtimeInfo?.sqsHasDLQ);
+          const hasError = yesNo(!!r.runtimeInfo?.error);
           const sqsMessages = r.runtimeInfo?.sqsMessageCount ?? 0;
 
           const row: (string | number | boolean)[] = [r.resourceName];
           switch (type) {
             case "AWS::Lambda::Function":
-              row.push(lastUsed, usedInLast30DaysIcon,runtime,deprecatedIcon,errorIcon);
+              row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);
               break;
             case "AWS::Lambda::Function":
-              row.push(lastUsed, usedInLast30DaysIcon,runtime,deprecatedIcon,errorIcon);
+              row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);
               break;
             case "AWS::S3::Bucket":
-              row.push(lastUsed, usedInLast30DaysIcon,deprecatedIcon,enc,publicAccessBlockedIcon,versioningEnabledIcon,errorIcon);
+              row.push(lastUsed, usedInLast30Days,deprecated,enc,publicAccessBlocked,versioningEnabled,hasError);
               break;
           case "AWS::SQS::Queue":
-            row.push(lastUsed, usedInLast30DaysIcon,deprecatedIcon,enc,sqsDLQIcon,sqsMessages,errorIcon);
+            row.push(lastUsed, usedInLast30Days,deprecated,enc,sqsHasDLQ,sqsMessages,hasError);
               break;
           case "AWS::DynamoDB::Table":
             row.push(r.runtimeInfo?.runtimeLanguage ?? "N/A", r.runtimeInfo?.runtimeVersion ?? "N/A");
               break;
           default:
-            row.push(lastUsed, usedInLast30DaysIcon,runtime,deprecatedIcon,errorIcon);
+            row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);
             break;
         }// end switch
         lines.push("| " + row.join(" | ") + " |");
@@ -188,6 +188,10 @@ export function generateMarkdownReportGrouped(report: GenerateResourceReportResp
     return null;
   }
 }
+function yesNo(value: boolean | undefined | null): string {
+  return value ? "Yes" : "No";
+}
+
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "N/A"; // handle null/undefined
   const date = new Date(dateStr);
