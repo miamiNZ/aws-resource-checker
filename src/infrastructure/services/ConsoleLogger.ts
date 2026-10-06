@@ -11,22 +11,22 @@ export class ConsoleLogger implements ILogger {
   }
 
   info(message: string, ...args: any[]) {
-    console.log(`[${this.getTimestamp()}] [INFO] ℹ️ ${" "}${message}`, ...args);
+    console.log(`[${this.getTimestamp()}] [INFO] ${message}`, ...args);
   }
 
   warn(message: string, ...args: any[]) {
-    console.warn(`[${this.getTimestamp()}] [WARN] ⚠️ ${" "}${message}`, ...args);
+    console.warn(`[${this.getTimestamp()}] [WARN] ${message}`, ...args);
   }
 
   error(message: string, ...args: any[]) {
-    console.error(`[${this.getTimestamp()}] [ERROR] ❌ ${" "}${message}`, ...args);
+    console.error(`[${this.getTimestamp()}] [ERROR] ${message}`, ...args);
   }
 
   debug(message: string, ...args: any[]) {
-    console.debug(`[${this.getTimestamp()}] [DEBUG] ⚙️ ${" "}${message}`, ...args);
+    console.debug(`[${this.getTimestamp()}] [DEBUG] ${message}`, ...args);
   }
   
   success(message: string, ...args: any[]) {
-    console.error(`[${this.getTimestamp()}] [SUCCESS] ✅ ${" "}${message}`, ...args);
+    console.error(`[${this.getTimestamp()}] [SUCCESS] ${message}`, ...args);
   }
 }
