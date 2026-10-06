@@ -65,7 +65,7 @@ npm start -- --profile my-profile
 
 When it finishes, look in the `reports/` folder for the three report files and in `logs/` for the run log.
 
-> **Tip:** run `make` on its own to list all available commands.
+> **Tip:** run `make` on its own to list all available commands. For a full cheat sheet, see [`scratch.txt`](scratch.txt).
 
 ---
 
@@ -314,6 +314,8 @@ A full file listing is in [`structure.txt`](structure.txt).
 | `make build` | `npm run build` | Compiles TypeScript to `dist/` |
 | `make typecheck` | `npm run typecheck` | Checks types without building |
 | `make clean` | — | Deletes `dist/` |
+
+More commands (AWS sign-in checks, viewing logs and reports, package maintenance) are in [`scratch.txt`](scratch.txt).
 
 ---
 

@@ -11,7 +11,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
+  "private": true,
   "type": "commonjs",
   "engines": {
     "node": ">=20.19"

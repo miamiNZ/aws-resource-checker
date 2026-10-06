@@ -1,5 +1,79 @@
-npm install puppeteer
-npm install bottleneck
-npm install --save-dev @types/bottleneck
-npx ts-node src/application/app.ts
-tree /F /A | Select-String -NotMatch "node_modules\\|node_modules/" | Out-File structure.txt                                                                                            
+AWS Resource Checker - command cheat sheet
+==========================================
+
+Replace my-profile with your own AWS CLI profile name.
+Every make command has an npm equivalent - use npm if you don't have make.
+"bash" = macOS / Linux / Git Bash.  "PowerShell" = Windows.
+
+
+SETUP (once)
+------------
+node --version                              # must be 20.19 or later
+make install                                # install dependencies + Chrome for PDFs
+npm ci                                      #   same, without make (step 1)
+npx puppeteer browsers install chrome       #   same, without make (step 2)
+
+
+AWS SIGN-IN
+-----------
+aws configure sso                           # create an SSO profile (first time only)
+aws configure list-profiles                 # list profiles on this machine
+aws sso login --profile my-profile          # sign in (repeat when the token expires)
+aws sts get-caller-identity --profile my-profile   # check who you're signed in as + account ID
+aws sso logout                              # sign out of all SSO sessions
+
+
+RUN THE REPORT
+--------------
+make                                        # list all make commands
+make run                                    # default credentials, region ap-southeast-2
+make run PROFILE=my-profile                 # named profile
+make run PROFILE=my-profile REGION=us-east-1
+make sso PROFILE=my-profile                 # sso login, then run
+
+npm start                                   # same as make run
+npm start -- --profile my-profile
+npm start -- --profile my-profile --region us-east-1
+
+npx ts-node src/application/app.ts --profile my-profile --region ap-southeast-2
+
+
+BUILD
+-----
+make build          | npm run build         # compile TypeScript to dist/
+make start PROFILE=my-profile               # build, then run the compiled code
+npm run start:dist -- --profile my-profile  # run compiled code (build first)
+make typecheck      | npm run typecheck     # check types without building
+make clean                                  # delete dist/
+
+
+REPORTS AND LOGS
+----------------
+# bash
+ls -lt reports/                                         # newest reports first
+tail -f "$(ls -t logs/*.log | head -1)"                 # follow the newest log
+grep -h "\[ERROR\]" logs/*.log                          # show all errors
+
+# PowerShell
+Get-ChildItem reports | Sort-Object LastWriteTime -Descending
+Get-Content (Get-ChildItem logs\*.log | Sort-Object LastWriteTime | Select-Object -Last 1) -Wait
+Select-String -Path logs\*.log -Pattern "\[ERROR\]"
+
+# clear old output (bash / PowerShell)
+rm -rf reports/* logs/*
+Remove-Item reports\*, logs\* -Recurse
+
+
+MAINTENANCE
+-----------
+npm outdated                                # list packages with newer versions
+npm update                                  # update within allowed version ranges
+npm audit                                   # list known vulnerabilities
+npm audit fix                               # fix vulnerabilities without breaking changes
+npx puppeteer browsers list                 # show installed Chrome builds
+
+
+PROJECT LAYOUT
+--------------
+tree src /F /A                              # PowerShell / cmd: show the source tree
+find src -type f | sort                     # bash: list all source files
