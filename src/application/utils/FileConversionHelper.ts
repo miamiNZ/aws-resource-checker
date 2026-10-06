@@ -174,7 +174,7 @@ export class FileConversionHelper {
       `;
       browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
-      await page.setContent(fullHtml, { waitUntil: "networkidle0" });
+      await page.setContent(fullHtml, { waitUntil: "load" });
       await page.pdf({
         path: pdfFileName,
         format: "A4",
