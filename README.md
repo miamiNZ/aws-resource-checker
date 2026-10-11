@@ -311,10 +311,7 @@ Tests use Node's built-in test runner (`node:test`) through `ts-node`, so there'
 
 Shared fakes and helpers are in `test/helpers.ts`.
 
-**Known issues** are recorded as `todo` tests. They run and show in the output, but don't fail the build until the bug is fixed:
-
-- The DynamoDB table in the report has 3 cells per row but 6 column headings.
-- `FileLogger` can lose the first log line when the `logs/` folder doesn't exist yet.
+To record a known bug without breaking the build, add a test with `{ todo: "reason" }`. It runs and shows in the output, but doesn't fail the run until the bug is fixed.
 
 ---
 
@@ -363,5 +360,4 @@ More commands (AWS sign-in checks, viewing logs and reports, package maintenance
 - Accept a stack-name filter on the command line (the request object already supports `stackName`).
 - Scan several regions in one run.
 - Collect extra details for DynamoDB, SNS, API Gateway, ECS and EKS.
-- Fix the known issues listed under [Testing](#testing).
 - Export CSV, or upload reports to S3.

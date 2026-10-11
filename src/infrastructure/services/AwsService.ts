@@ -124,7 +124,7 @@ constructor(
           ]
         });
         try {
-          const res: GetMetricDataCommandOutput = await this.cw.send(command);
+          const res: GetMetricDataCommandOutput = await this.retryWithBackoff(() => this.cw.send(command), `GetMetricData(${functionName})`);
           if (res.MetricDataResults?.length) {
             const data = res.MetricDataResults[0];
             const activePoints = data.Timestamps
@@ -141,11 +141,7 @@ constructor(
           } //end if res.MetricDataResults
         }
         catch (err: any) {
-          if (err.name === "ThrottlingException") {
-            this.logger.warn(`Throttled by CloudWatch, waiting 500ms and retrying chunk ${chunkStart.toISOString()} - ${chunkEnd.toISOString()}`);
-            await new Promise(r => setTimeout(r, 500));
-            continue; // retry the same chunk
-          }
+          // retryWithBackoff has already retried throttling; skip this chunk and keep searching.
           this.logger.warn(`CloudWatch query failed for ${functionName}: ${err}`);
         }// end catch
         // move backwards one chunk
@@ -311,8 +307,11 @@ constructor(
             info.encryption = encryption?.ServerSideEncryptionConfiguration?.Rules?.[0]?.ApplyServerSideEncryptionByDefault?.SSEAlgorithm ?? "None";
             const publicAccess = await this.retryWithBackoff(() => this.s3.send(pubCommand),`GetPublicAccessBlock(${id})`).catch(() => null);
             info.publicAccessBlocked = publicAccess?.PublicAccessBlockConfiguration?.BlockPublicAcls ?? false;
-            const versioning = await this.retryWithBackoff(() => this.s3.send(verCommand),`GetBucketVersioning(${id})`);
-            info.versioningEnabled = versioning.Status === "Enabled"
+            const versioning = await this.retryWithBackoff(() => this.s3.send(verCommand),`GetBucketVersioning(${id})`).catch((err) => {
+              this.logger?.warn?.(`Could not read versioning for S3 bucket ${id}: ${err}`);
+              return null;
+            });
+            info.versioningEnabled = versioning?.Status === "Enabled";
             info.runtimeLanguage = null;
             info.runtimeVersion = null;
             info.deprecated = false;
@@ -428,7 +427,10 @@ constructor(
     throw err;
   }
 }
-  private async retryWithBackoff<T>(fn: () => Promise<T>, description: string, maxRetries = 5, baseDelayMs = 500): Promise<T> {
+  // First retry delay in ms; doubles on each retry.
+  private retryBaseDelayMs = 500;
+
+  private async retryWithBackoff<T>(fn: () => Promise<T>, description: string, maxRetries = 5, baseDelayMs = this.retryBaseDelayMs): Promise<T> {
     let attempt = 0;
     while (attempt < maxRetries) {
       try{

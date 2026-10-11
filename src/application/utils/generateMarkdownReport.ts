@@ -155,21 +155,13 @@ export function generateMarkdownReportGrouped(report: GenerateResourceReportResp
           const sqsMessages = r.runtimeInfo?.sqsMessageCount ?? 0;
 
           const row: (string | number | boolean)[] = [r.resourceName];
+          // Each row must have one cell per header column above.
           switch (type) {
-            case "AWS::Lambda::Function":
-              row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);
-              break;
-            case "AWS::Lambda::Function":
-              row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);
-              break;
             case "AWS::S3::Bucket":
               row.push(lastUsed, usedInLast30Days,deprecated,enc,publicAccessBlocked,versioningEnabled,hasError);
               break;
           case "AWS::SQS::Queue":
             row.push(lastUsed, usedInLast30Days,deprecated,enc,sqsHasDLQ,sqsMessages,hasError);
-              break;
-          case "AWS::DynamoDB::Table":
-            row.push(r.runtimeInfo?.runtimeLanguage ?? "N/A", r.runtimeInfo?.runtimeVersion ?? "N/A");
               break;
           default:
             row.push(lastUsed, usedInLast30Days,runtime,deprecated,hasError);

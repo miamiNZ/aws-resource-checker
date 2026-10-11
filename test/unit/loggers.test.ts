@@ -65,13 +65,37 @@ describe("FileLogger", () => {
     await waitFor(() => fs.existsSync("custom-logs") && fs.readdirSync("custom-logs").length === 1);
   });
 
-  test("logging straight after construction is not lost", { todo: "known race: the constructor starts mkdir without awaiting it" }, async () => {
+  test("logging straight after construction is not lost", async () => {
     const logger = new FileLogger("race-logs");
     logger.info("first line");
-    await new Promise(r => setTimeout(r, 200));
-    const files = fs.existsSync("race-logs") ? fs.readdirSync("race-logs") : [];
+    await logger.flush();
+    const files = fs.readdirSync("race-logs");
     assert.equal(files.length, 1);
     assert.ok(fs.readFileSync(path.join("race-logs", files[0]), "utf8").includes("first line"));
+  });
+
+  test("keeps lines in the order they were logged", async () => {
+    const logger = new FileLogger();
+    for (let i = 0; i < 100; i++) logger.info(`line ${i}`);
+    await logger.flush();
+
+    const numbers = readLog().split("\n").filter(Boolean).map(l => Number(l.match(/line (\d+)/)![1]));
+    assert.deepEqual(numbers, Array.from({ length: 100 }, (_, i) => i));
+  });
+
+  test("a failed write is reported on the console and later writes still work", async () => {
+    const logger = await makeLogger();
+    const consoleError = mock.method(console, "error", () => {});
+    (logger as any).logFilePath = path.join(temp.dir, "no-such-dir", "x.log");
+    logger.info("lost");
+    await logger.flush();
+    (logger as any).logFilePath = path.join(temp.dir, "logs", "ok.log");
+    logger.info("kept");
+    await logger.flush();
+    consoleError.mock.restore();
+
+    assert.ok(consoleError.mock.calls.some(c => String(c.arguments[0]).includes("Failed to write log to file")));
+    assert.ok(fs.readFileSync(path.join("logs", "ok.log"), "utf8").includes("kept"));
   });
 });
 
@@ -92,7 +116,7 @@ describe("ConsoleLogger", () => {
     ["warn", "warn", "WARN"],
     ["error", "error", "ERROR"],
     ["debug", "debug", "DEBUG"],
-    ["success", "error", "SUCCESS"],
+    ["success", "log", "SUCCESS"],
   ] as const) {
     test(`${method}() writes "[timestamp] [${tag}] message" to console.${consoleMethod}`, () => {
       (new ConsoleLogger() as any)[method]("the message", { extra: 1 });

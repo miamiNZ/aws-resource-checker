@@ -27,6 +27,6 @@ export class ConsoleLogger implements ILogger {
   }
   
   success(message: string, ...args: any[]) {
-    console.error(`[${this.getTimestamp()}] [SUCCESS] ${message}`, ...args);
+    console.log(`[${this.getTimestamp()}] [SUCCESS] ${message}`, ...args);
   }
 }

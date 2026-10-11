@@ -142,7 +142,7 @@ describe("generateMarkdownReportGrouped", () => {
     assert.doesNotMatch(md, /[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}]/u);
   });
 
-  for (const type of ["AWS::Lambda::Function", "AWS::S3::Bucket", "AWS::SQS::Queue", "AWS::RDS::DBInstance", "AWS::EC2::Instance", "AWS::SNS::Topic"]) {
+  for (const type of ["AWS::Lambda::Function", "AWS::S3::Bucket", "AWS::SQS::Queue", "AWS::RDS::DBInstance", "AWS::EC2::Instance", "AWS::SNS::Topic", "AWS::DynamoDB::Table"]) {
     test(`${type} rows have as many cells as the header`, () => {
       const r = lambda({ resourceType: type, runtimeInfo: { resourceId: "x", resourceType: type, exists: true } });
       const { header, rows } = tableFor(generateMarkdownReportGrouped(report([r]))!, type);
@@ -150,11 +150,6 @@ describe("generateMarkdownReportGrouped", () => {
     });
   }
 
-  test("AWS::DynamoDB::Table rows have as many cells as the header", { todo: "known bug: the DynamoDB row has 3 cells but the header has 6" }, () => {
-    const r = lambda({ resourceType: "AWS::DynamoDB::Table", runtimeInfo: { resourceId: "t", resourceType: "AWS::DynamoDB::Table", exists: true } });
-    const { header, rows } = tableFor(generateMarkdownReportGrouped(report([r]))!, "AWS::DynamoDB::Table");
-    assert.equal(rows[0].length, header.length);
-  });
 });
 
 describe("generateMarkdownReport (flat table)", () => {

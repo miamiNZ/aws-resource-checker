@@ -293,6 +293,20 @@ describe("AwsService.getResourceInfo", () => {
       assert.equal(info.versioningEnabled, false);
     });
 
+    test("still reports the bucket when versioning can't be read", async () => {
+      const s3 = fullBucket();
+      (s3 as any).handlers.GetBucketVersioningCommand = () => { throw awsError("AccessDenied"); };
+      const { service, logger } = makeAwsService({ s3 });
+      const info = await service.getResourceInfo({ ResourceType: "AWS::S3::Bucket", PhysicalResourceId: "bucket" });
+
+      assert.equal(info.exists, true);
+      assert.equal(info.error, undefined);
+      assert.equal(info.encryption, "aws:kms");
+      assert.equal(info.publicAccessBlocked, true);
+      assert.equal(info.versioningEnabled, false);
+      assert.ok(logger.messages("warn").some(m => m.includes("Could not read versioning for S3 bucket bucket")));
+    });
+
     test("reports an error when the bucket cannot be reached", async () => {
       const s3 = new FakeClient({ HeadBucketCommand: () => { throw awsError("NotFound"); } });
       const { service } = makeAwsService({ s3 });
@@ -476,7 +490,18 @@ describe("AwsService.getLambdaLastInvocation", () => {
     assert.equal(await service.getLambdaLastInvocation("fn"), found.toISOString());
     assert.equal(cw.calls.length, 2);
     assert.equal(cw.calls[0].input.StartTime.getTime(), cw.calls[1].input.StartTime.getTime(), "same chunk retried");
-    assert.ok(logger.messages("warn").some(m => m.includes("Throttled by CloudWatch")));
+    assert.ok(logger.messages("warn").some(m => m.startsWith("Retryable error (ThrottlingException) on GetMetricData(fn)")));
+  });
+
+  test("stops retrying a chunk that is always throttled and finishes", async () => {
+    const cw = new FakeClient({ GetMetricDataCommand: () => { throw awsError("ThrottlingException"); } });
+    const { service, logger } = makeAwsService({ cw });
+
+    assert.equal(await service.getLambdaLastInvocation("fn"), null);
+    const chunks = new Set(cw.calls.map(c => c.input.StartTime.getTime())).size;
+    assert.ok(chunks >= 12, "moves on to the next chunk after giving up");
+    assert.equal(cw.calls.length, chunks * 5, "5 attempts per chunk, no more");
+    assert.ok(logger.messages("warn").some(m => m.startsWith("CloudWatch query failed for fn")));
   });
 });
 

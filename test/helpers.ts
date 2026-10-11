@@ -64,7 +64,7 @@ export type AwsClients = {
 
 /**
  * Create an AwsService wired to fake clients. The 200 ms Bottleneck rate limiter
- * is replaced with an unthrottled one so tests run fast.
+ * is replaced with an unthrottled one, and retry back-off starts at 1 ms, so tests run fast.
  */
 export function makeAwsService(overrides: Partial<AwsClients> = {}) {
   const clients: AwsClients = {
@@ -78,6 +78,7 @@ export function makeAwsService(overrides: Partial<AwsClients> = {}) {
     clients.rds as any, clients.ec2 as any, clients.s3 as any, clients.sts as any, clients.sqs as any,
   );
   (service as any).limiter = new Bottleneck();
+  (service as any).retryBaseDelayMs = 1;
   return { service, clients, logger };
 }
 
