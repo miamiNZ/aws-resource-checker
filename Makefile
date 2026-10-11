@@ -9,6 +9,10 @@
 #   make build                            compile to dist/
 #   make start PROFILE=your-sso-profile   run compiled build
 #   make typecheck                        tsc --noEmit
+#   make test                             run all tests (no AWS access needed)
+#   make test-unit                        run unit tests only
+#   make test-integration                 run integration tests only
+#   make coverage                         run all tests with a coverage report
 #   make clean                            remove dist/
 #
 # Recipes avoid shell-specific syntax so they work whether make uses sh or cmd.
@@ -25,10 +29,10 @@ ENTRY := src/application/app.ts
 DIST  := dist/application/app.js
 
 .DEFAULT_GOAL := help
-.PHONY: help install run sso sso-login build start typecheck clean
+.PHONY: help install run sso sso-login build start typecheck test test-unit test-integration coverage clean
 
 help:
-	@echo Targets: install run sso sso-login build start typecheck clean
+	@echo Targets: install run sso sso-login build start typecheck test test-unit test-integration coverage clean
 	@echo Variables: PROFILE=name  REGION=name, default ap-southeast-2
 	@echo Example: make sso PROFILE=your-sso-profile REGION=us-east-1
 
@@ -53,6 +57,18 @@ start: build
 
 typecheck:
 	npx tsc --noEmit
+
+test:
+	npm test
+
+test-unit:
+	npm run test:unit
+
+test-integration:
+	npm run test:integration
+
+coverage:
+	npm run test:coverage
 
 clean:
 	node -e "require('fs').rmSync('dist', { recursive: true, force: true })"

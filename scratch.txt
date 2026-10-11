@@ -48,6 +48,19 @@ npm run typecheck
 make clean
 
 
+TESTING
+-------
+make test
+npm test
+make test-unit
+npm run test:unit
+make test-integration
+npm run test:integration
+make coverage
+npm run test:coverage
+node --require ts-node/register --test test/unit/awsService.test.ts
+
+
 REPORTS AND LOGS (bash)
 -----------------------
 ls -lt reports/
