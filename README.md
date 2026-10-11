@@ -24,6 +24,7 @@ The tool only reads from AWS. It never creates, changes or deletes anything.
 - [Configuration](#configuration)
 - [Debugging in VS Code](#debugging-in-vs-code)
 - [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
 - [Project structure](#project-structure)
 
 ---
@@ -284,6 +285,36 @@ Set breakpoints in any `.ts` file under `src/`, open the **Run and Debug** panel
 
 ---
 
+## Testing
+
+The tests never call AWS. AWS SDK clients are replaced with in-memory fakes, and the end-to-end CLI tests run with empty AWS config files so they can't reach an account. No credentials are needed.
+
+```bash
+make test               # all tests            (npm test)
+make test-unit          # unit tests only      (npm run test:unit)
+make test-integration   # integration tests    (npm run test:integration)
+make coverage           # all tests + coverage (npm run test:coverage)
+```
+
+Tests use Node's built-in test runner (`node:test`) through `ts-node`, so there's no extra test framework to install. A full run takes about 20 seconds.
+
+| File | Covers |
+|---|---|
+| `test/unit/awsService.test.ts` | Stack listing and paging, account lookup, details for each resource type, deprecated runtime detection, CloudWatch and CloudTrail last-used lookups, retry and back-off |
+| `test/unit/generateResourceReportHandler.test.ts` | Building the report: skipping unsupported resources, the 30-day flag, stack name filtering, one failing stack not stopping the others |
+| `test/unit/generateMarkdownReport.test.ts` | Report layout, grouping by stack and type, the columns for each resource type, date formatting |
+| `test/unit/mediator.test.ts` | Request routing and request defaults |
+| `test/unit/fileHelper.test.ts`, `test/unit/loggers.test.ts` | Writing and reading report files, log file and console output |
+| `test/integration/reportFiles.test.ts` | JSON to Markdown to PDF, including a real PDF render (skipped if Chrome isn't installed) |
+| `test/integration/container.test.ts` | Dependency injection wiring |
+| `test/integration/cli.test.ts` | Running the real CLI: failure message, exit code 1, log file written |
+
+Shared fakes and helpers are in `test/helpers.ts`.
+
+To record a known bug without breaking the build, add a test with `{ todo: "reason" }`. It runs and shows in the output, but doesn't fail the run until the bug is fixed.
+
+---
+
 ## Project structure
 
 The code follows a layered (domain-driven) layout and uses the **Mediator** pattern with [InversifyJS](https://inversify.io/) for dependency injection: `app.ts` sends a `GenerateResourceReportRequest` to the `Mediator`, which routes it to `GenerateResourceReportHandler`. New report types can be added as new request/handler pairs without changing existing code.
@@ -303,6 +334,11 @@ src/
     ├── di/                       # Inversify container and bindings
     ├── services/                 # AwsService (all AWS calls), ConsoleLogger, FileLogger
     └── utils/                    # FileHelper (writes reports)
+
+test/
+├── helpers.ts                    # Fake AWS clients, recording logger, temp folders
+├── unit/                         # Fast tests for each class and function
+└── integration/                  # Report files, PDF, DI container, end-to-end CLI
 ```
 
 A full file listing is in [`structure.txt`](structure.txt).
@@ -324,5 +360,4 @@ More commands (AWS sign-in checks, viewing logs and reports, package maintenance
 - Accept a stack-name filter on the command line (the request object already supports `stackName`).
 - Scan several regions in one run.
 - Collect extra details for DynamoDB, SNS, API Gateway, ECS and EKS.
-- Add unit tests for `AwsService` by mocking the AWS SDK clients.
 - Export CSV, or upload reports to S3.

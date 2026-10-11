@@ -16,54 +16,70 @@
 +---reports
 |       AwsResourceReport<timestamp>.json/md/pdf
 |
-\---src
-    +---application
-    |   |   app.ts
-    |   |
-    |   +---reports
-    |   |       GenerateResourceReportHandler .ts
-    |   |       GenerateResourceReportRequest.ts
-    |   |       GenerateResourceReportResponse .ts
-    |   |
-    |   \---utils
-    |           FileConversionHelper.ts
-    |           generateMarkdownReport.ts
-    |           md.ts
++---src
+|   +---application
+|   |   |   app.ts
+|   |   |
+|   |   +---reports
+|   |   |       GenerateResourceReportHandler .ts
+|   |   |       GenerateResourceReportRequest.ts
+|   |   |       GenerateResourceReportResponse .ts
+|   |   |
+|   |   \---utils
+|   |           FileConversionHelper.ts
+|   |           generateMarkdownReport.ts
+|   |           md.ts
+|   |
+|   +---domain
+|   |   +---constants
+|   |   |       accountNames.ts
+|   |   |       awsResourceTypes.ts
+|   |   |
+|   |   +---entities
+|   |   |       ResourceReport.ts
+|   |   |
+|   |   +---interfaces
+|   |   |       IAwsService.ts
+|   |   |       IHandler.ts
+|   |   |       ILogger.ts
+|   |   |       IMediator.ts
+|   |   |       IRequest.ts
+|   |   |
+|   |   +---models
+|   |   |       ResourceInfo.ts
+|   |   |       RuntimeInfo.ts
+|   |   |
+|   |   +---requests
+|   |   \---responses
+|   \---infrastructure
+|       |   Mediator.ts
+|       |
+|       +---di
+|       |       container.ts
+|       |       handlerMapper.ts
+|       |       types.ts
+|       |
+|       +---services
+|       |       AwsService.ts
+|       |       ConsoleLogger.ts
+|       |       FileLogger.ts
+|       |
+|       \---utils
+|               FileHelper.ts
+|
+\---test
+    |   helpers.ts
     |
-    +---domain
-    |   +---constants
-    |   |       accountNames.ts
-    |   |       awsResourceTypes.ts
-    |   |
-    |   +---entities
-    |   |       ResourceReport.ts
-    |   |
-    |   +---interfaces
-    |   |       IAwsService.ts
-    |   |       IHandler.ts
-    |   |       ILogger.ts
-    |   |       IMediator.ts
-    |   |       IRequest.ts
-    |   |
-    |   +---models
-    |   |       ResourceInfo.ts
-    |   |       RuntimeInfo.ts
-    |   |
-    |   +---requests
-    |   \---responses
-    \---infrastructure
-        |   Mediator.ts
-        |
-        +---di
-        |       container.ts
-        |       handlerMapper.ts
-        |       types.ts
-        |
-        +---services
-        |       AwsService.ts
-        |       ConsoleLogger.ts
-        |       FileLogger.ts
-        |
-        \---utils
-                FileHelper.ts
+    +---integration
+    |       cli.test.ts
+    |       container.test.ts
+    |       reportFiles.test.ts
+    |
+    \---unit
+            awsService.test.ts
+            fileHelper.test.ts
+            generateMarkdownReport.test.ts
+            generateResourceReportHandler.test.ts
+            loggers.test.ts
+            mediator.test.ts
 
